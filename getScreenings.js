@@ -61,17 +61,24 @@ function sendScreenings(p) {
   var year = dateValue.getYear();
 
   var timeValue = new Date(p.Time);
-  var hour = timeValue.getUTCHours();
-  var minutes = timeValue.getUTCMinutes();
+  var hour = timeValue.getHours();
+  var minutes = timeValue.getMinutes();
 
-  var formattedDateTime = new Date(year, month, day, hour, minutes);
+  console.log(hour, minutes)
 
-  console.log(formattedDateTime)
+  var formattedDateTime = new Date(year, month, day, hour, minutes, 0); // need to add the 0 for the seconds
 
-  var dateTime = Utilities.formatDate(formattedDateTime, "UTC", "MM/dd/yyyy HH:mm a")
-  //var dateTime = Utilities.formatDate(formattedDateTime, "UTC", "MM/dd/yyyy")
+  var duration = p.Run_Time;
+  var msDateValue = new Date(formattedDateTime).getTime();
+  var formattedEndDateTime = new Date(msDateValue + (duration * 1000));
 
-  console.log(dateTime)
+  console.log(duration, msDateValue, formattedEndDateTime)
+
+  var startDateTime = Utilities.formatDate(formattedDateTime, "PST", "MM/dd/yyyy kk:mm")
+  var endDateTime = Utilities.formatDate(formattedEndDateTime, "PST", "MM/dd/yyyy kk:mm")
+
+  console.log("startDateTime:", startDateTime, "endDateTime:", endDateTime)
+
 
   UrlFetchApp.fetch(apiUrl + createEvent
     + "?token=" + token +
@@ -80,22 +87,11 @@ function sendScreenings(p) {
     + "&description=" + p.Synopsis +
     "&location=" + p.Venue_Name + " " + p.Venue_Address +
     "&timezone=America/Los_Angeles" +
-    "&start_date=" + dateTime, {
+    "&start_date=" + startDateTime,
+    "&end_date=" + endDateTime, {
     "method": "post",
     "payload": JSON.stringify(data)
   });
-
-  Logger.log(UrlFetchApp.fetch(apiUrl + createEvent
-    + "?token=" + token +
-    "&calendar_id=153194017366433&title="
-    + p.Film_Title
-    + "&description=" + p.Synopsis +
-    "&location=" + p.Venue_Name + " " + p.Venue_Address +
-    "&timezone=America/Los_Angeles" +
-    "&start_date=" + dateTime, {
-    "method": "post",
-    "payload": JSON.stringify(data)
-  }).getResponseCode());
 }
 
 // "https://www.calendarx.com/api/v1/calendars/events/create/?token=api1531940172LJDNgYHieIyvSu2ORGsx25545&calendar_id=153194017366433&title=SHOCK
