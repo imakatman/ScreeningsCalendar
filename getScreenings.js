@@ -23,7 +23,6 @@ function main(e) {
 
   var parameters = designData(edits)
 
-  console.log(parameters)
   sendScreenings(parameters)
 }
 
@@ -56,13 +55,23 @@ function sendScreenings(p) {
   // 19:30:00 GMT-08:00 1899", Venue_Address:  "8949 Wilshire Boulevard, Beverly Hills CA, 90211", Venue_Name:  "Samuel
   // Goldwyn Theater", Youtube:  "https://www.youtube.com/watch?v=XcSMdhfKga4" }
 
-  var time  = p.Time;
-  var month = format(time.getMonth() + 1);
-  var day   = format(time.getDate());
-  var year  = format(time.getFullYear());
-  var date  = month + "/" + day + "/" + year;
+  var dateValue = new Date(p.Date);
+  var month = dateValue.getMonth();
+  var day = dateValue.getDate();
+  var year = dateValue.getYear();
 
-  console.log(date)
+  var timeValue = new Date(p.Time);
+  var hour = timeValue.getUTCHours();
+  var minutes = timeValue.getUTCMinutes();
+
+  var formattedDateTime = new Date(year, month, day, hour, minutes);
+
+  console.log(formattedDateTime)
+
+  var dateTime = Utilities.formatDate(formattedDateTime, "UTC", "MM/dd/yyyy HH:mm a")
+  //var dateTime = Utilities.formatDate(formattedDateTime, "UTC", "MM/dd/yyyy")
+
+  console.log(dateTime)
 
   UrlFetchApp.fetch(apiUrl + createEvent
     + "?token=" + token +
@@ -71,7 +80,7 @@ function sendScreenings(p) {
     + "&description=" + p.Synopsis +
     "&location=" + p.Venue_Name + " " + p.Venue_Address +
     "&timezone=America/Los_Angeles" +
-    "&start_date=" + date, {
+    "&start_date=" + dateTime, {
     "method": "post",
     "payload": JSON.stringify(data)
   });
@@ -83,72 +92,13 @@ function sendScreenings(p) {
     + "&description=" + p.Synopsis +
     "&location=" + p.Venue_Name + " " + p.Venue_Address +
     "&timezone=America/Los_Angeles" +
-    "&start_date=" + date, {
+    "&start_date=" + dateTime, {
     "method": "post",
     "payload": JSON.stringify(data)
   }).getResponseCode());
 }
 
-main()
-
 // "https://www.calendarx.com/api/v1/calendars/events/create/?token=api1531940172LJDNgYHieIyvSu2ORGsx25545&calendar_id=153194017366433&title=SHOCK
 // AND AWE&description=A group of journalists covering George Bush’s planned invasion of Iraq in 2003 are skeptical of
 // the president’s claim that Saddam Hussein has “weapons of mass destruction.&location=Samuel Goldwyn
 // Theater&timezone=America/Los_Angeles&start_date=7/18/18&end_date=7/19/18&all_day_event=true"
-
-// function readSheets() {
-//   locations.map(function (item, i) {
-//     var label = item.label,
-//     uid = item.uid;
-//
-//     var sheet   = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(label),
-//         headers = sheet.getRange(label + '!A1:O1').getValues(),
-//         values  = sheet.getRange(label + '!A2:O').getValues();
-//
-//     for(var n = 0; n <= headers.length; n++){
-//       Logger.log(headers[i][n]);
-//       Logger.log(values[i][n]);
-//
-//       return Object.assign(screenings, {
-//         [uid] : {
-//           [headers[i][n]]: values[i][n]
-//         }
-//       })
-//     }
-//     // normalizeAndStoreData(item, headers, values)
-//   });
-//
-//   Logger.log(screenings);
-// }
-
-// function normalizeAndStoreData(item, headers, values) {
-//   return function (dispatch, getState) {
-//     var cityUid  = item.uid,
-//         timezone = getState().screenings[uid].children_data[cityUid].timezone;
-//
-//     let obj = {
-//       city: item.label
-//     };
-//
-//     obj.screenings = formatScreeningsData(headers[0], values, item.label, timezone);
-//
-//     dispatch(storeScreenings(uid, cityUid, obj));
-//   }
-// }
-//
-// function formatData(headers, values, labels, tz) {
-//
-// }
-
-// function readRange(spreadsheetId) {
-//     var response = Sheets.Spreadsheets.Values.get(spreadsheetId, 'Sheet1!A1:D5');
-//     Logger.log(response.values);
-// }
-
-// // Creates an event for the mars landing and logs the ID.
-// var event = CalendarApp.getCalendarById('4h8n7e9pvernebghcs52d23s44@group.calendar.google.com').createEvent('Falcon
-// Heavy Landing', new Date('July 28, 2018 20:00:00 UTC'), new Date('July 28, 2018 21:00:00 UTC'), {location: 'Mars'});
-
-// function addEvents() {
-//     Logger.log('Event ID: ' + event.getId());
-// }
