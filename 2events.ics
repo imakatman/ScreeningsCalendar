@@ -1,0 +1,34 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+METHOD:PUBLISH
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+STATUS:CONFIRMED
+UID:1530827058addeventcom
+DTSTART:20180715T023000Z
+DTEND:20180715T040000Z
+SUMMARY:SHOCK AND AWE
+DESCRIPTION:A group of journalists covering George Bush’s planned invasion of Iraq in 2003 are skeptical of the president’s claim that Saddam Hussein has “weapons of mass destruction.”\n\nUnless otherwise noted\, screenings are held at the Academy's Samuel Goldwyn Theater\, 8949 Wilshire Boulevard\, Beverly Hills\, CA\, 90211. Check back for updates on post-screening guests. Watch previous Academy Conversations here (https://www.youtube.com/playlist?list=PL1310A316C0413CD3).\n\nCall 310-247-3614 for 24-hour Screening Schedule Information.\n\nAcademy Members may bring three guests to screenings.\n\n
+X-ALT-DESC;FMTTYPE=text/html:A group of journalists covering George Bush’s planned invasion of Iraq in 2003 are skeptical of the president’s claim that Saddam Hussein has “weapons of mass destruction.”<br><br>&lt;p&gt;Unless otherwise noted, screenings are held at the Academy's Samuel Goldwyn Theater, 8949 Wilshire Boulevard, Beverly Hills, CA, 90211. Check back for updates on post-screening guests. Watch previous Academy Conversations &lt;a href="https://www.youtube.com/playlist?list=PL1310A316C0413CD3" target="_blank"&gt;here&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;Call &lt;a&gt;310-247-3614&lt;/a&gt; for 24-hour Screening Schedule Information.&lt;/p&gt;&lt;p&gt;Academy Members may bring &lt;strong&gt;three guests&lt;/strong&gt; to screenings.&lt;/p&gt;
+LOCATION:Samuel Goldwyn Theater "8949 Wilshire Boulevard\, Beverly Hills CA\, 90211"
+BEGIN:VALARM
+TRIGGER:-PT60M
+ACTION:DISPLAY
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+STATUS:CONFIRMED
+UID:1530826021addeventcom
+DTSTART:20180801T030000Z
+DTEND:20180801T045100Z
+SUMMARY:MCQUEEN
+DESCRIPTION:A documentary on the life of famed fashion designer Alexander McQueen.\n\nUnless otherwise noted\, screenings are held at the Academy's Samuel Goldwyn Theater\, 8949 Wilshire Boulevard\, Beverly Hills\, CA\, 90211. Check back for updates on post-screening guests. Watch previous Academy Conversations here (https://www.youtube.com/playlist?list=PL1310A316C0413CD3).\n\nCall 310-247-3614 for 24-hour Screening Schedule Information.\n\nAcademy Members may bring three guests to screenings.\n\n
+X-ALT-DESC;FMTTYPE=text/html:A documentary on the life of famed fashion designer Alexander McQueen.<br><br>&lt;p&gt;Unless otherwise noted, screenings are held at the Academy's Samuel Goldwyn Theater, 8949 Wilshire Boulevard, Beverly Hills, CA, 90211. Check back for updates on post-screening guests. Watch previous Academy Conversations &lt;a href="https://www.youtube.com/playlist?list=PL1310A316C0413CD3" target="_blank"&gt;here&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;Call &lt;a&gt;310-247-3614&lt;/a&gt; for 24-hour Screening Schedule Information.&lt;/p&gt;&lt;p&gt;Academy Members may bring &lt;strong&gt;three guests&lt;/strong&gt; to screenings.&lt;/p&gt;
+LOCATION:Samuel Goldwyn Theater 8949 Wilshire Boulevard\, Beverly Hills CA\, 90211
+BEGIN:VALARM
+TRIGGER:-PT60M
+ACTION:DISPLAY
+END:VALARM
+TRANSP:OPAQUE
+END:VEVENT
+END:VCALENDAR
