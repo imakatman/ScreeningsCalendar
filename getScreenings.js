@@ -45,40 +45,26 @@ function designData(data) {
 }
 
 function sendScreenings(p) {
-  // var p = {
-  //   Credits:  "Starring Christine Baranski, Pierce Brosnan, Dominic Cooper, Colin Firth, Andy Garcia, Lily James,
-  // Amanda Seyfried, Stellan Skarsgård, Julie Walters, Cher and Meryl Streep. Produced by Judy, Craymer and Gary
-  // Goetzman. Story by Richard Curtis and Ol Parker and Catherine Johnson. Screenplay by Ol Parker. Directed by Ol
-  // Parker.", Date:  "Sat Jul 21 00:00:00 GMT-07:00 2018", Film_Title:  "MAMMA MIA! HERE WE GO AGAIN!!!!", Guests:
-  // "", Notes:  "", Rating:  "PG-13", Rsvp:  "", Run_Time:  "N/A", Series:  "", Studio:  "Universal Pictures",
-  // Synopsis:  "In this sequel to Mamma Mia!, a pregnant Sophie learns about her mother’s past.", Time:  "Sat Dec 30
-  // 19:30:00 GMT-08:00 1899", Venue_Address:  "8949 Wilshire Boulevard, Beverly Hills CA, 90211", Venue_Name:  "Samuel
-  // Goldwyn Theater", Youtube:  "https://www.youtube.com/watch?v=XcSMdhfKga4" }
-
   var dateValue = new Date(p.Date);
-  var month = dateValue.getMonth();
-  var day = dateValue.getDate();
-  var year = dateValue.getYear();
+  var month     = dateValue.getMonth();
+  var day       = dateValue.getDate();
+  var year      = dateValue.getYear();
 
   var timeValue = new Date(p.Time);
-  var hour = timeValue.getHours();
-  var minutes = timeValue.getMinutes();
+  var hour      = timeValue.getHours();
+  var minutes   = timeValue.getMinutes();
 
-  console.log(hour, minutes)
+  var formattedDateTime    = new Date(year, month, day, hour, minutes, 0); // need to add the 0 for the seconds
+  var startDateTimeMs      = formattedDateTime.getTime();
+  var duration             = p.Run_Time;
+  var endDateTimeMs        = startDateTimeMs + (duration * 60000);
 
-  var formattedDateTime = new Date(year, month, day, hour, minutes, 0); // need to add the 0 for the seconds
-
-  var duration = p.Run_Time;
-  var msDateValue = new Date(formattedDateTime).getTime();
-  var formattedEndDateTime = new Date(msDateValue + (duration * 1000));
-
-  console.log(duration, msDateValue, formattedEndDateTime)
-
+  var formattedEndDateTime = new Date(+endDateTimeMs); // i have no idea why you have to add the (+) operator but you do
   var startDateTime = Utilities.formatDate(formattedDateTime, "PST", "MM/dd/yyyy kk:mm")
-  var endDateTime = Utilities.formatDate(formattedEndDateTime, "PST", "MM/dd/yyyy kk:mm")
 
-  console.log("startDateTime:", startDateTime, "endDateTime:", endDateTime)
+  var endDateTime   = Utilities.formatDate(formattedEndDateTime, "PST", "MM/dd/yyyy kk:mm")
 
+  console.log("endDateTime:", endDateTime)
 
   UrlFetchApp.fetch(apiUrl + createEvent
     + "?token=" + token +
@@ -89,9 +75,9 @@ function sendScreenings(p) {
     "&timezone=America/Los_Angeles" +
     "&start_date=" + startDateTime,
     "&end_date=" + endDateTime, {
-    "method": "post",
-    "payload": JSON.stringify(data)
-  });
+      "method": "post",
+      "payload": JSON.stringify(data)
+    });
 }
 
 // "https://www.calendarx.com/api/v1/calendars/events/create/?token=api1531940172LJDNgYHieIyvSu2ORGsx25545&calendar_id=153194017366433&title=SHOCK
