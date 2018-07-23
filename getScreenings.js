@@ -1,16 +1,11 @@
 var apiUrl      = "https://www.calendarx.com/api/v1/calendars/";
 var createEvent = "events/create/";
+var saveEvent   = "events/save/";
 var token       = "api1531940172LJDNgYHieIyvSu2ORGsx25545";
 var calendar
 
 var screenings    = {};
 var children_data = {};
-
-var data = JSON.stringify({
-  calendar_id: 153194017366433,
-  title: "SHOCK AND AWE",
-  start_date: "7/18/18 4:00 PM",
-})
 
 // var e;
 var headers;
@@ -44,7 +39,29 @@ function designData(data) {
   return screening;
 }
 
+//function convertDateTime(){
+//
+//}
+
 function sendScreenings(p) {
+  // var p = {
+  //   Credits: "Starring Christine Baranski, Pierce Brosnan, Dominic Cooper, Colin Firth, Andy Garcia, Lily James,Amanda Seyfried, Stellan Skarsgård, Julie Walters, Cher and Meryl Streep. Produced by Judy, Craymer and GaryGoetzman. Story by Richard Curtis and Ol Parker and Catherine Johnson. Screenplay by Ol Parker. Directed by OlParker.",
+  //   Date: "Sat Jul 21 00:00:00 GMT-07:00 2018",
+  //   Film_Title: "MAMMA MIA! HERE WE GO AGAIN!!!!",
+  //   Guests: "",
+  //   Notes: "",
+  //   Rating: "PG-13",
+  //   Rsvp: "",
+  //   Run_Time: "N/A",
+  //   Series: "",
+  //   Studio: "Universal Pictures",
+  //   Synopsis: "In this sequel to Mamma Mia!, a pregnant Sophie learns about her mother’s past.",
+  //   Time: "Sat Dec 30 " + "19:30:00 GMT-08:00 1899",
+  //   Venue_Address: "8949 Wilshire Boulevard, Beverly Hills CA, 90211",
+  //   Venue_Name: "Samuel Goldwyn Theater",
+  //   Youtube: "https://www.youtube.com/watch?v=XcSMdhfKga4"
+  // }
+
   var dateValue = new Date(p.Date);
   var month     = dateValue.getMonth();
   var day       = dateValue.getDate();
@@ -58,13 +75,12 @@ function sendScreenings(p) {
   var startDateTimeMs      = formattedDateTime.getTime();
   var duration             = p.Run_Time;
   var endDateTimeMs        = startDateTimeMs + (duration * 60000);
-
+  var startDateTime        = Utilities.formatDate(formattedDateTime, "PST", "MM/dd/yyyy kk:mm")
   var formattedEndDateTime = new Date(+endDateTimeMs); // i have no idea why you have to add the (+) operator but you do
-  var startDateTime = Utilities.formatDate(formattedDateTime, "PST", "MM/dd/yyyy kk:mm")
+  var endDateTime          = Utilities.formatDate(formattedEndDateTime, "PST", "MM/dd/yyyy kk:mm")
 
-  var endDateTime   = Utilities.formatDate(formattedEndDateTime, "PST", "MM/dd/yyyy kk:mm")
-
-  console.log("endDateTime:", endDateTime)
+  console.log("formattedEndDateTime", formattedEndDateTime)
+  console.log("startDateTime", startDateTime, "endDateTime:", endDateTime)
 
   UrlFetchApp.fetch(apiUrl + createEvent
     + "?token=" + token +
@@ -74,9 +90,9 @@ function sendScreenings(p) {
     "&location=" + p.Venue_Name + " " + p.Venue_Address +
     "&timezone=America/Los_Angeles" +
     "&start_date=" + startDateTime,
-    "&end_date=" + endDateTime, {
-      "method": "post",
-      "payload": JSON.stringify(data)
+    // "&end_date=" + endDateTime, {
+    {
+      "method": "post"
     });
 }
 
