@@ -15,7 +15,6 @@ function main(e) {
 
   sendScreening(parameters);
   updateScreeningIfNeeded();
-  //console.log(response);
 }
 
 function getValues(e, r) {
@@ -62,10 +61,7 @@ function convertDateTime(date, time, runTime) {
   var endDateTimeMs        = startDateTimeMs + (runTime * 60000);
   // not totally sure why you have to add the (+) operator but you do
   var formattedEndDateTime = new Date(+endDateTimeMs);
-  var endDateTime          = Utilities.formatDate(formattedEndDateTime, "PST", "MM/dd/yyyy kk:mm")
-
-  console.log("formattedEndDateTime", formattedEndDateTime)
-  console.log("startDateTime", startDateTime, "endDateTime:", endDateTime)
+  var endDateTime          = Utilities.formatDate(formattedEndDateTime, "PST", "MM/dd/yyyy kk:mm");
 
   return {
     start: startDateTime,
@@ -74,7 +70,12 @@ function convertDateTime(date, time, runTime) {
 }
 
 function sendScreening(p) {
-  var postUrl = apiUrl + createEvent + "?token=" + token + "&calendar_id=153194017366433&title=" + p.Film_Title + "&description=" + p.Synopsis + "&location=" + p.Venue_Name + " " + p.Venue_Address + "&timezone=America/Los_Angeles" + "&start_date=" + p.startDateTime + "&end_date=" + p.endDateTime;
+  var calendarId = 153194017366433;
+  var eventDoesntExist = checkEvent();
+  // console.log("eventDoesntExist:", eventDoesntExist)
+  // var methodType    = eventDoesntExist ? createEvent : saveEvent;
+
+  var postUrl = apiUrl + methodType + "?token=" + token + "&calendar_id=" + calendarId + "&title=" + p.Film_Title + "&description=" + p.Synopsis + "&location=" + p.Venue_Name + " " + p.Venue_Address + "&timezone=America/Los_Angeles" + "&start_date=" + p.startDateTime + "&end_date=" + p.endDateTime;
 
   request = function () {
     response = UrlFetchApp.fetch(postUrl, {
@@ -86,10 +87,22 @@ function sendScreening(p) {
   request();
 }
 
-function updateScreeningIfNeeded() {
-  console.log(typeof response)
-  var id = JSON.parse(response).event.id;
-  activeSheet.getRange("A" + editedRow).setValue(id);
+function checkEvent(){
+  // Check to see if an event with the same Title, Event, and Time exists?
+}
+
+function updateScreeningIfNeeded(timeout) {
+  var truncatedTime = timeout ? timeout : 1000;
+
+  Utilities.sleep(truncatedTime);
+  //@TODO: Write error handling code for response codes other than 200
+  if (response !== 'undefined' || response !== undefined) {
+    console.log("response: ", typeof response, response)
+    var id = JSON.parse(response).event.id;
+    activeSheet.getRange("A" + editedRow).setValue(id);
+  } else {
+    updateScreeningIfNeeded(timeout + 1000);
+  }
 }
 
 // "https://www.calendarx.com/api/v1/calendars/events/create/?token=api1531940172LJDNgYHieIyvSu2ORGsx25545&calendar_id=153194017366433&title=SHOCK
