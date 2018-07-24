@@ -2,28 +2,25 @@ var apiUrl      = "https://www.calendarx.com/api/v1/calendars/";
 var createEvent = "events/create/";
 var saveEvent   = "events/save/";
 var token       = "api1531940172LJDNgYHieIyvSu2ORGsx25545";
-var calendar
 
-var screenings    = {};
-var children_data = {};
-
-// var e;
 var headers;
+var request, response;
+var activeSheet, editedRow;
 
 function main(e) {
-  headers = getValues(e, 1);
+  headers        = getValues(e, 1);
+  editedRow      = e.source.getActiveRange().getRow();
+  var edits      = getValues(e, editedRow);
+  var parameters = designData(edits);
 
-  var editedRow = e.source.getActiveRange().getRow();
-  var edits     = getValues(e, editedRow);
-
-  var parameters = designData(edits)
-
-  sendScreenings(parameters)
+  sendScreening(parameters);
+  updateScreeningIfNeeded();
+  //console.log(response);
 }
 
 function getValues(e, r) {
-  var sh = e.source.getActiveSheet();
-  var vs = sh.getRange("A" + r + ":O" + r).getValues();
+  activeSheet = e.source.getActiveSheet();
+  var vs      = activeSheet.getRange("A" + r + ":O" + r).getValues();
 
   return vs;
 }
@@ -63,7 +60,7 @@ function convertDateTime(date, time, runTime) {
   var startDateTime     = Utilities.formatDate(formattedDateTime, "PST", "MM/dd/yyyy kk:mm")
 
   var endDateTimeMs        = startDateTimeMs + (runTime * 60000);
-  // i have no idea why you have to add the (+) operator but you do
+  // not totally sure why you have to add the (+) operator but you do
   var formattedEndDateTime = new Date(+endDateTimeMs);
   var endDateTime          = Utilities.formatDate(formattedEndDateTime, "PST", "MM/dd/yyyy kk:mm")
 
@@ -76,12 +73,23 @@ function convertDateTime(date, time, runTime) {
   }
 }
 
-function sendScreenings(p) {
+function sendScreening(p) {
   var postUrl = apiUrl + createEvent + "?token=" + token + "&calendar_id=153194017366433&title=" + p.Film_Title + "&description=" + p.Synopsis + "&location=" + p.Venue_Name + " " + p.Venue_Address + "&timezone=America/Los_Angeles" + "&start_date=" + p.startDateTime + "&end_date=" + p.endDateTime;
 
-  UrlFetchApp.fetch(postUrl, {
-    "method": "post"
-  });
+  request = function () {
+    response = UrlFetchApp.fetch(postUrl, {
+      "method": "post"
+    });
+    return response;
+  }
+
+  request();
+}
+
+function updateScreeningIfNeeded() {
+  console.log(typeof response)
+  var id = JSON.parse(response).event.id;
+  activeSheet.getRange("A" + editedRow).setValue(id);
 }
 
 // "https://www.calendarx.com/api/v1/calendars/events/create/?token=api1531940172LJDNgYHieIyvSu2ORGsx25545&calendar_id=153194017366433&title=SHOCK
