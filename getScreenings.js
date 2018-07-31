@@ -29,7 +29,7 @@ function designData(data) {
   var eventInfo = data[0];
 
   eventInfo.map(function (d, i) {
-    screening[headers[0][i]] = data[0][i]
+    screening[headers[0][i]] = encodeURIComponent(data[0][i])
   })
 
   var dateTime            = convertDateTime(screening.Date, screening.Time, screening.Run_Time);
@@ -71,9 +71,9 @@ function convertDateTime(date, time, runTime) {
 
 function sendScreening(p) {
   var calendarId = 153194017366433;
-  var eventDoesntExist = checkEvent();
-  // console.log("eventDoesntExist:", eventDoesntExist)
-  // var methodType    = eventDoesntExist ? createEvent : saveEvent;
+  var eventDoesntExist = p.ID === "" || p.ID === undefined || p.ID === typeof 'undefined'
+  console.log("eventDoesntExist:", eventDoesntExist)
+  var methodType    = eventDoesntExist ? createEvent : saveEvent;
 
   var postUrl = apiUrl + methodType + "?token=" + token + "&calendar_id=" + calendarId + "&title=" + p.Film_Title + "&description=" + p.Synopsis + "&location=" + p.Venue_Name + " " + p.Venue_Address + "&timezone=America/Los_Angeles" + "&start_date=" + p.startDateTime + "&end_date=" + p.endDateTime;
 
@@ -87,9 +87,9 @@ function sendScreening(p) {
   request();
 }
 
-function checkEvent(){
-  // Check to see if an event with the same Title, Event, and Time exists?
-}
+// function checkEvent(){
+//   // Check to see if an event with the same Title, Event, and Time exists?
+// }
 
 function updateScreeningIfNeeded(timeout) {
   var truncatedTime = timeout ? timeout : 1000;
