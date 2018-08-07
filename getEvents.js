@@ -9,7 +9,9 @@ function main(e) {
   var events     = getValues(e);
   var parameters = designData(events);
 
-  sendEvent(parameters);
+  console.log(parameters)
+
+  sendEvents(parameters);
 }
 
 function getHeaders(e, r) {
@@ -32,28 +34,16 @@ function getValues(e) {
 }
 
 function designData(data) {
-  var events    = [];
-  var eventInfo = data;
-
-  console.log("headers", headers)
-  console.log("eventInfo", eventInfo.length, eventInfo)
-  eventInfo.map(function (theEvent) {
-    console.log(theEvent)
-    var event            = {};
+  return data.map(function (theEvent) {
+    var event = new Object();
     theEvent[0].map(function (info, i) {
       event[headers[i]] = info
     });
-    var dateTime         = convertDateTime(event.Date, event.Time, event.Run_Time);
-    event.startDateTime  = dateTime.start;
-    event.endDateTime    = dateTime.end;
-
-    console.log("event", event)
-    events.push(event)
-  })
-
-  console.log("events", events)
-
-  return events;
+    var dateTime        = convertDateTime(event.Date, event.Time, event.Run_Time);
+    event.StartDateTime = dateTime.start;
+    event.EndDateTime   = dateTime.end;
+    console.log(event)
+  });
 }
 
 function convertDateTime(date, time, runTime) {
@@ -86,45 +76,10 @@ function convertDateTime(date, time, runTime) {
   }
 }
 
-function sendEvent(payload) {
-  //var calendarId = 153194017366433;
-  //var eventDoesntExist = p.ID === "" || p.ID === undefined || p.ID === typeof 'undefined'
-  //console.log("eventDoesntExist:", eventDoesntExist)
-  //var methodType    = eventDoesntExist ? createEvent : saveEvent;
-
-  // var postUrl = apiUrl + methodType + "?token=" + token + "&calendar_id=" + calendarId + "&title=" + p.Film_Title +
-  // "&description=" + p.Synopsis + "&location=" + p.Venue_Name + " " + p.Venue_Address +
-  // "&timezone=America/Los_Angeles" + "&start_date=" + p.startDateTime + "&end_date=" + p.endDateTime;
-
-  request = function () {
-    return response = UrlFetchApp.fetch(apiUrl, {
-      "method": "post",
-      "body": payload
-    });
-  }
-
-  request();
+function sendEvents(payload) {
+  console.log("payload", payload)
+  return UrlFetchApp.fetch(apiUrl, {
+    "method": "post",
+    "body": payload
+  });
 }
-
-// function checkEvent(){
-//   // Check to see if an event with the same Title, Event, and Time exists?
-// }
-
-// function updateScreeningIfNeeded(timeout) {
-//   var truncatedTime = timeout ? timeout : 1000;
-//
-//   Utilities.sleep(truncatedTime);
-//   //@TODO: Write error handling code for response codes other than 200
-//   if (response !== 'undefined' || response !== undefined) {
-//     console.log("response: ", typeof response, response)
-//     var id = JSON.parse(response).event.id;
-//     activeSheet.getRange("A" + editedRow).setValue(id);
-//   } else {
-//     updateScreeningIfNeeded(timeout + 1000);
-//   }
-// }
-
-// "https://www.calendarx.com/api/v1/calendars/events/create/?token=api1531940172LJDNgYHieIyvSu2ORGsx25545&calendar_id=153194017366433&title=SHOCK
-// AND AWE&description=A group of journalists covering George Bush’s planned invasion of Iraq in 2003 are skeptical of
-// the president’s claim that Saddam Hussein has “weapons of mass destruction.&location=Samuel Goldwyn
-// Theater&timezone=America/Los_Angeles&start_date=7/18/18&end_date=7/19/18&all_day_event=true"
