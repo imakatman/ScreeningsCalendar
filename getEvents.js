@@ -5,13 +5,13 @@ var request, response;
 var activeSheet;
 
 function main(e) {
-  headers        = getHeaders(e, 1)[0];
-  var events     = getValues(e);
-  var parameters = designData(events);
+  headers     = getHeaders(e, 1)[0];
+  var events  = getValues(e);
+  var payload = designData(events);
 
-  console.log(parameters)
+  console.log(payload[0])
 
-  sendEvents(parameters);
+  sendEvents(payload);
 }
 
 function getHeaders(e, r) {
@@ -35,7 +35,7 @@ function getValues(e) {
 
 function designData(data) {
   return data.map(function (theEvent) {
-    var event = new Object();
+    var event = {};
     theEvent[0].map(function (info, i) {
       event[headers[i]] = info
     });
@@ -43,6 +43,7 @@ function designData(data) {
     event.StartDateTime = dateTime.start;
     event.EndDateTime   = dateTime.end;
     console.log(event)
+    return event;
   });
 }
 
