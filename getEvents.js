@@ -1,45 +1,59 @@
-var apiUrl      = "http://35.163.42.76:8080/submit/los_angeles";
-var createEvent = "events/create/";
-var saveEvent   = "events/save/";
-var token       = "api1531940172LJDNgYHieIyvSu2ORGsx25545";
+var apiUrl = "http://35.163.42.76:8080/submit/los_angeles";
 
 var headers;
 var request, response;
-var activeSheet, editedRow;
+var activeSheet;
 
 function main(e) {
-  headers        = getValues(e, 1);
-  editedRow      = e.source.getActiveRange().getRow();
-  var edits      = getValues(e, editedRow);
-  var parameters = designData(edits);
+  headers        = getHeaders(e, 1)[0];
+  var events     = getValues(e);
+  var parameters = designData(events);
 
   sendEvent(parameters);
 }
 
-function getValues(e, r) {
+function getHeaders(e, r) {
   activeSheet = e.source.getActiveSheet();
-  var numOfEvents;
   var vs      = activeSheet.getRange("A" + r + ":O" + r).getValues();
 
-  console.log(e.source)
-  console.log("typeof values vs is", typeof vs)
-  console.log("values vs", vs)
+  return vs;
+}
+
+function getValues(e) {
+  activeSheet     = e.source.getActiveSheet();
+  var numOfEvents = activeSheet.getLastRow();
+  var vs          = [];
+
+  for (var i = 2; i < numOfEvents; i++) {
+    vs.push(activeSheet.getRange("A" + i + ":O" + i).getValues());
+  }
+
   return vs;
 }
 
 function designData(data) {
-  var event = {};
-  var eventInfo = data[0];
+  var events    = [];
+  var eventInfo = data;
 
-  eventInfo.map(function (d, i) {
-    event[headers[0][i]] = data[0][i]
+  console.log("headers", headers)
+  console.log("eventInfo", eventInfo.length, eventInfo)
+  eventInfo.map(function (theEvent) {
+    console.log(theEvent)
+    var event            = {};
+    theEvent[0].map(function (info, i) {
+      event[headers[i]] = info
+    });
+    var dateTime         = convertDateTime(event.Date, event.Time, event.Run_Time);
+    event.startDateTime  = dateTime.start;
+    event.endDateTime    = dateTime.end;
+
+    console.log("event", event)
+    events.push(event)
   })
 
-  var dateTime            = convertDateTime(event.Date, event.Time, event.Run_Time);
-  event.startDateTime = dateTime.start;
-  event.endDateTime   = dateTime.end;
+  console.log("events", events)
 
-  return event;
+  return events;
 }
 
 function convertDateTime(date, time, runTime) {
@@ -62,7 +76,6 @@ function convertDateTime(date, time, runTime) {
   var startDateTime     = Utilities.formatDate(formattedDateTime, "PST", "yyyy-MM-dd'T'HH:mm:ss'Z'")
 
   var endDateTimeMs        = startDateTimeMs + (runTime * 60000);
-  console.log(startDateTimeMs, endDateTimeMs)
   // not totally sure why you have to add the (+) operator but you do
   var formattedEndDateTime = new Date(+endDateTimeMs);
   var endDateTime          = Utilities.formatDate(formattedEndDateTime, "PST", "yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -79,7 +92,9 @@ function sendEvent(payload) {
   //console.log("eventDoesntExist:", eventDoesntExist)
   //var methodType    = eventDoesntExist ? createEvent : saveEvent;
 
-  // var postUrl = apiUrl + methodType + "?token=" + token + "&calendar_id=" + calendarId + "&title=" + p.Film_Title + "&description=" + p.Synopsis + "&location=" + p.Venue_Name + " " + p.Venue_Address + "&timezone=America/Los_Angeles" + "&start_date=" + p.startDateTime + "&end_date=" + p.endDateTime;
+  // var postUrl = apiUrl + methodType + "?token=" + token + "&calendar_id=" + calendarId + "&title=" + p.Film_Title +
+  // "&description=" + p.Synopsis + "&location=" + p.Venue_Name + " " + p.Venue_Address +
+  // "&timezone=America/Los_Angeles" + "&start_date=" + p.startDateTime + "&end_date=" + p.endDateTime;
 
   request = function () {
     return response = UrlFetchApp.fetch(apiUrl, {
@@ -87,8 +102,6 @@ function sendEvent(payload) {
       "body": payload
     });
   }
-
-  console.log(payload)
 
   request();
 }
