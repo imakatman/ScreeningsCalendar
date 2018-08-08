@@ -7,9 +7,9 @@ var activeSheet;
 function main(e) {
   headers     = getHeaders(e, 1)[0];
   var events  = getValues(e);
-  var payload = designData(events);
-
-  console.log(payload[0])
+  var payload = {
+    screenings: designData(events)
+  };
 
   sendEvents(payload);
 }
@@ -42,7 +42,6 @@ function designData(data) {
     var dateTime        = convertDateTime(event.Date, event.Time, event.Run_Time);
     event.StartDateTime = dateTime.start;
     event.EndDateTime   = dateTime.end;
-    console.log(event)
     return event;
   });
 }
@@ -78,7 +77,7 @@ function convertDateTime(date, time, runTime) {
 }
 
 function sendEvents(payload) {
-  console.log("payload", payload)
+  console.log(payload)
   return UrlFetchApp.fetch(apiUrl, {
     "method": "post",
     "body": payload
