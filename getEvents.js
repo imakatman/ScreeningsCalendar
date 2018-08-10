@@ -4,6 +4,10 @@ var headers;
 var request, response;
 var activeSheet;
 
+/*
+* main parses the edited sheet to the data as JSON to the ampas
+* calendar server
+* */
 function main(e) {
   headers     = getHeaders(e, 1)[0];
   var events  = getValues(e);
@@ -14,6 +18,9 @@ function main(e) {
   sendEvents(payload);
 }
 
+/*
+* getHeaders parses the first row of the sheet and returns them as values
+* */
 function getHeaders(e, r) {
   activeSheet = e.source.getActiveSheet();
   var vs      = activeSheet.getRange("A" + r + ":O" + r).getValues();
@@ -21,6 +28,9 @@ function getHeaders(e, r) {
   return vs;
 }
 
+/*
+* getValues parses each row, which is returned in an array, and pushes it into a daddy array
+* */
 function getValues(e) {
   activeSheet     = e.source.getActiveSheet();
   var numOfEvents = activeSheet.getLastRow();
@@ -33,6 +43,10 @@ function getValues(e) {
   return vs;
 }
 
+/*
+* designData parses the events into an object with each value being attached to its corresponding
+* field and returns them in an array
+* */
 function designData(data) {
   return data.map(function (theEvent) {
     var event = {};
@@ -46,6 +60,10 @@ function designData(data) {
   });
 }
 
+/*
+* convertDateTime takes a date, time, and run time of a screening and returns the start datetime and
+* end datetime in the RFC 3339 extension of the ISO 8601 standard format
+* */
 function convertDateTime(date, time, runTime) {
   var dateValue    = new Date(date);
   var dateValueObj = {
@@ -76,10 +94,19 @@ function convertDateTime(date, time, runTime) {
   }
 }
 
+/*
+* sendEvents makes a post request to the calendar server and sends a unique token
+* as well as all of the events in the sheet that triggered the on edit or on change event
+* */
 function sendEvents(payload) {
-  console.log(payload)
-  return UrlFetchApp.fetch(apiUrl, {
+  var options = {
     "method": "post",
-    "body": payload
-  });
+    "headers": {
+      "token": "oN$lYb-ek5-rOw"
+    },
+    "contentType": "application/json",
+    "payload": JSON.stringify(payload)
+  }
+  console.log(UrlFetchApp.getRequest(apiUrl, options))
+  return UrlFetchApp.fetch(apiUrl, options);
 }
