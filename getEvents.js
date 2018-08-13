@@ -1,7 +1,6 @@
 var apiUrl = "http://35.163.42.76:8080/submit/los_angeles";
 
 var headers;
-var request, response;
 var activeSheet;
 
 /*
@@ -11,11 +10,12 @@ var activeSheet;
 function main(e) {
   headers     = getHeaders(e, 1)[0];
   var events  = getValues(e);
+  var miscDataSheet = getMiscData(SpreadsheetApp.getActive().getSheetByName("Misc"))
   var payload = {
     screenings: designData(events)
   };
 
-  sendEvents(payload);
+  // sendEvents(payload);
 }
 
 /*
@@ -43,6 +43,31 @@ function getValues(e) {
   return vs;
 }
 
+function getMiscData(data){
+  var lastRow = data.getLastRow()
+  var fields = data.getRange("B1:I1").getValues()[0];
+  var cities = data.getRange("A2:A" + lastRow).getValues().map(function(c){
+    return c[0]
+  });
+
+  var values = data.getRange("B2:I" + lastRow).getValues();
+  var vs = {};
+  cities.map(function (c, i) {
+    var obj = {};
+    fields.map(function (f, x) {
+      var value = values[i][x];
+      if(value === ""){
+        obj[f] =  ""
+      } else {
+        obj[f] =  value
+      }
+    })
+    vs[c] = obj
+  })
+
+  console.log(JSON.stringify(vs))
+}
+
 /*
 * designData parses the events into an object with each value being attached to its corresponding
 * field and returns them in an array
@@ -53,7 +78,15 @@ function designData(data) {
     theEvent[0].map(function (info, i) {
       event[headers[i]] = info
     });
-    var dateTime        = convertDateTime(event.Date, event.Time, event.Run_Time);
+
+    var dateData = {
+      date: event.Date,
+      time: event.Time,
+      runTime: event.Run_Time,
+      tzAbbrev: event.Timezone_Abbrev
+    }
+
+    var dateTime        = convertDateTime(dateData);
     event.StartDateTime = dateTime.start;
     event.EndDateTime   = dateTime.end;
     return event;
@@ -64,15 +97,15 @@ function designData(data) {
 * convertDateTime takes a date, time, and run time of a screening and returns the start datetime and
 * end datetime in the RFC 3339 extension of the ISO 8601 standard format
 * */
-function convertDateTime(date, time, runTime) {
-  var dateValue    = new Date(date);
+function convertDateTime(dateData) {
+  var dateValue    = new Date(dateData.date);
   var dateValueObj = {
     month: dateValue.getMonth(),
     day: dateValue.getDate(),
     year: dateValue.getYear()
   }
 
-  var timeValue    = new Date(time);
+  var timeValue    = new Date(dateData.time);
   var timeValueObj = {
     hour: timeValue.getHours(),
     minutes: timeValue.getMinutes()
@@ -81,12 +114,12 @@ function convertDateTime(date, time, runTime) {
   // need to add the 0 for the seconds
   var formattedDateTime = new Date(dateValueObj.year, dateValueObj.month, dateValueObj.day, timeValueObj.hour, timeValueObj.minutes, 0);
   var startDateTimeMs   = formattedDateTime.getTime();
-  var startDateTime     = Utilities.formatDate(formattedDateTime, "PST", "yyyy-MM-dd'T'HH:mm:ss'Z'")
+  var startDateTime     = Utilities.formatDate(formattedDateTime, dateData.tzAbbrev, "yyyy-MM-dd'T'HH:mm:ss'Z'")
 
-  var endDateTimeMs        = startDateTimeMs + (runTime * 60000);
+  var endDateTimeMs        = startDateTimeMs + (dateData.runTime * 60000);
   // not totally sure why you have to add the (+) operator but you do
   var formattedEndDateTime = new Date(+endDateTimeMs);
-  var endDateTime          = Utilities.formatDate(formattedEndDateTime, "PST", "yyyy-MM-dd'T'HH:mm:ss'Z'");
+  var endDateTime          = Utilities.formatDate(formattedEndDateTime, dateData.tzAbbrev, "yyyy-MM-dd'T'HH:mm:ss'Z'");
 
   return {
     start: startDateTime,

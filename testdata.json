@@ -1,19 +1,42 @@
 {
-  Credits: "Starring Woody Harrelson, Rob Reiner, James Marsden, Jessica Biel, Milla Jovovich and Tommy Lee Jones. Produced by Matthew George, Rob, Reiner, Michele Reiner and Elizabeth A. Bell. Screenplay by Joey Hartstone. Directed by Rob Reiner.",
-  Date: "Sat Jul 14 00:00:00 GMT-07:00 2018",
-  Film_Title: "ANT-MAN AND THE WASP",
-  Guests: "Director Rob Reiner",
-  ID: 1698300,
-  Notes: "",
-  Rating: "R",
-  Rsvp: "",
-  Run_Time: 90,
-  Series: "",
-  Studio: "Vertical Entertainment",
-  Synopsis: "A group of journalists covering George Bush’s planned invasion of Iraq in 2003 are skeptical of the president’s claim that Saddam Hussein, has “weapons of mass destruction.”",
-  Time: "Sat Dec 30 19:30:00 GMT-08:00 1899",
-  Venue_Address: "8949 Wilshire Boulevard, Beverly Hills CA, 90211",
-  Venue_Name: "Samuel Goldwyn Theater",
-  endDateTime: "07/14/2018 21:00",
-  startDateTime: "07/14/2018 19:30"
+  "Bay Area": {
+    "Description": "<p>Bay Area screenings are held simultaneously in two different locations: the Premier Theatre at Lucasfilm's Letterman Digital Arts Center, 1 Letterman Drive, San Francisco, and the Skywalker Sound Stag Theatre, 5858 Lucas Valley Road, Nicasio. To RSVP for a screening in either location, dial <a href=\"tel:415-746-3100\">415-746-3100</a> and please provide the name of your guest.</p><p>Call <a href=\"tel:310-247-3614\">310-247-3614</a> for 24-hour Screening Schedule Information.</p><p>Academy Members may bring <strong>one guest</strong> to screenings.</p>",
+    "Special_Message": "",
+    "Screening_Regulations": "",
+    "Initials": "SF",
+    "Credits": true,
+    "Timezone": "America/Los_Angeles",
+    "Timezone_Abbrev": "PST",
+    "uid": "00a"
+  },
+  "Los Angeles": {
+    "Description": "<p>Unless otherwise noted, screenings are held at the Academy's Samuel Goldwyn Theater, 8949 Wilshire Boulevard, Beverly Hills, CA, 90211. Check back for updates on post-screening guests. Watch previous Academy Conversations <a href=\"https://www.youtube.com/playlist?list=PL1310A316C0413CD3\" target=\"_blank\">here</a>.</p><p>Call <a href=\"tel:310-247-3614\">310-247-3614</a> for 24-hour Screening Schedule Information.</p><p>Academy Members may bring <strong>three guests</strong> to screenings.</p>",
+    "Special_Message": "",
+    "Screening_Regulations": "<p>Unless otherwise noted, admission is by Academy membership card, which must be presented by the member, who may be accompanied by one guest. Non-members under 13 years of age will not be admitted to any screenings except when the screening is publicized as open to members and their families.</p><p>Academy members are reminded that they are personally responsible for the presence and behavior of their guests at screenings. We ask that members refrain from allowing persons unknown to them, or only vaguely known to them, to accompany them into screenings.</p><p>Important Note: Membership cards contain a bar code, which will be scanned for admission to all screenings at Academy venues in Los Angeles (Samuel Goldwyn Theater and Linwood Dunn Theater).</p><p>Call <a href=\"tel:310-247-3614\">310-247-3614</a> for 24-hour Screening Schedule Information for Los Angeles, New York, and the Bay Area.</p>",
+    "Initials": "LA",
+    "Credits": true,
+    "Timezone": "America/Los_Angeles",
+    "Timezone_Abbrev": "PST",
+    "uid": "01a"
+  },
+  "New York": {
+    "Description": "<p>New York Membership Screenings take place at The Museum of Modern Art located at 11 West 53rd St. in Midtown.</p>\n<p>For screenings in the Celeste Bartos Theater, please enter at The Lewis B. and Dorothy Cullman Education and Research Center entrance at 4 West 54th St. between 5th and 6th Avenues.</p>\n<p>For screenings in the Roy and Niuta Titus Theaters 1 or 2, please enter via the MoMA Film entrance at 11 West 53rd St. between 5th and 6th Avenues. The entrance is located under the canopy near 5th Avenue.</p><p>Academy Members may bring <strong>one guest</strong> to screenings.</p><p><strong>THERE ARE NO ADDITIONAL MEMBER SCREENINGS FOR THE MONTH OF AUGUST.</strong></p>",
+    "Special_Message": "",
+    "Screening_Regulations": "",
+    "Initials": "NY",
+    "Credits": true,
+    "Timezone": "America/New_York",
+    "Timezone_Abbrev": "ET",
+    "uid": "11a"
+  },
+  "London": {
+    "Description": "<p>Unless otherwise noted, screenings take place at Dolby Europe Limited, 4–6 Soho Square, London W1D 3PZ.</p><p>\nIf you have any questions, please call <a href=\"tel:0203 411 5072\">0203 411 5072</a> or email <a href=\"mailto:carola.ash@oscars.org\">carola.ash@oscars.org</a></p><p>Academy Members may bring <strong>one guest</strong> to screenings. If you would like to attend with a guest, please email <a href=\"mailto:lisa.dalton@oscars.org\">lisa.dalton@oscars.org</a></p>\n<p><strong>THERE ARE NO MEMBER SCREENINGS FOR THE MONTH OF AUGUST.</strong></p>",
+    "Special_Message": "",
+    "Screening_Regulations": "",
+    "Initials": "LN",
+    "Credits": true,
+    "Timezone": "Europe/London",
+    "Timezone_Abbrev": "BST",
+    "uid": "10a"
+  }
 }
