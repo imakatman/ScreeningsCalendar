@@ -8,14 +8,16 @@ var activeSheet;
 * calendar server
 * */
 function main(e) {
-  headers     = getHeaders(e, 1)[0];
-  var events  = getValues(e);
-  var miscDataSheet = getMiscData(SpreadsheetApp.getActive().getSheetByName("Misc"))
-  var payload = {
-    screenings: designData(events)
+  headers      = getHeaders(e, 1)[0];
+  var events   = getValues(e);
+  var sheet    = e.source.getActiveSheet().getName();
+  var miscData = getMiscData(sheet, SpreadsheetApp.getActive().getSheetByName("Misc"))
+  var payload  = {
+    screenings: designData(events),
+    misc: miscData
   };
 
-  // sendEvents(payload);
+  sendEvents(payload);
 }
 
 /*
@@ -36,36 +38,40 @@ function getValues(e) {
   var numOfEvents = activeSheet.getLastRow();
   var vs          = [];
 
-  for (var i = 2; i < numOfEvents; i++) {
+  console.log(numOfEvents)
+
+  for (var i = 2; i <= numOfEvents; i++) {
     vs.push(activeSheet.getRange("A" + i + ":O" + i).getValues());
   }
 
   return vs;
 }
 
-function getMiscData(data){
+function getMiscData(editedCity, data) {
   var lastRow = data.getLastRow()
-  var fields = data.getRange("B1:I1").getValues()[0];
-  var cities = data.getRange("A2:A" + lastRow).getValues().map(function(c){
+  var fields  = data.getRange("B1:I1").getValues()[0];
+  var cities  = data.getRange("A2:A" + lastRow).getValues().map(function (c) {
     return c[0]
   });
 
   var values = data.getRange("B2:I" + lastRow).getValues();
-  var vs = {};
+  var vs     = {};
   cities.map(function (c, i) {
-    var obj = {};
-    fields.map(function (f, x) {
-      var value = values[i][x];
-      if(value === ""){
-        obj[f] =  ""
-      } else {
-        obj[f] =  value
-      }
-    })
-    vs[c] = obj
+    if (c === editedCity) {
+      var obj = {};
+      fields.map(function (f, x) {
+        var value = values[i][x];
+        if (value === "") {
+          obj[f] = ""
+        } else {
+          obj[f] = value
+        }
+      })
+      vs[c] = obj
+    }
   })
 
-  console.log(JSON.stringify(vs))
+  return vs;
 }
 
 /*
@@ -73,6 +79,7 @@ function getMiscData(data){
 * field and returns them in an array
 * */
 function designData(data) {
+  console.log(data)
   return data.map(function (theEvent) {
     var event = {};
     theEvent[0].map(function (info, i) {
@@ -140,6 +147,6 @@ function sendEvents(payload) {
     "contentType": "application/json",
     "payload": JSON.stringify(payload)
   }
-  console.log(UrlFetchApp.getRequest(apiUrl, options))
+  console.log(JSON.stringify(payload))
   return UrlFetchApp.fetch(apiUrl, options);
 }
