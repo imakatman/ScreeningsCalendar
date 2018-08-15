@@ -12,17 +12,20 @@ var miscSheet, miscDataUpdated, cityToUpdate;
 * */
 function main(e) {
   sheet     = e.source.getActiveSheet().getName();
-  headers   = getHeaders(e, 1)[0]; // sets var activeSheet
   miscSheet = SpreadsheetApp.getActive().getSheetByName("Misc");
 
   if (sheet !== "Misc") {
+    console.log("sheet is NOT Misc")
     miscDataUpdated = false;
+    headers   = getHeaders(e, 1)[0]; // sets var sheetToSend
     var events      = getEvents(e);
     var miscData    = getMiscData(sheet, miscSheet)
 
   } else {
+    console.log("sheet is Misc")
     miscDataUpdated = true;
-    cityToUpdate    = getUpdatedMiscData(e)
+    cityToUpdate    = getUpdatedMiscData(e);
+    headers   = getHeaders(e, 1)[0]; // sets var sheetToSend
     var events      = getEvents(e);
     var miscData    = getMiscData(cityToUpdate, miscSheet)
   }
@@ -37,7 +40,7 @@ function main(e) {
 
 function getUpdatedMiscData(e) {
   var editedRow = e.source.getActiveRange().getRow();
-  var city      = activeSheet.getRange("A" + editedRow).getValue();
+  var city      = miscSheet.getRange("A" + editedRow).getValue();
 
   return city;
 }
@@ -69,7 +72,7 @@ function getEvents() {
   console.log(numOfEvents)
 
   for (var i = 2; i <= numOfEvents; i++) {
-    vs.push(activeSheet.getRange("A" + i + ":O" + i).getValues());
+    vs.push(sheetToSend.getRange("A" + i + ":O" + i).getValues());
   }
 
   return vs;
