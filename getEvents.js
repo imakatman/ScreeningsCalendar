@@ -13,7 +13,7 @@ function main(e) {
   var sheet    = e.source.getActiveSheet().getName();
   var miscData = getMiscData(sheet, SpreadsheetApp.getActive().getSheetByName("Misc"))
   var payload  = {
-    screenings: designData(events),
+    screenings: designData(events, miscData),
     misc: miscData
   };
 
@@ -67,7 +67,7 @@ function getMiscData(editedCity, data) {
           obj[f] = value
         }
       })
-      vs[c] = obj
+      vs = obj
     }
   })
 
@@ -78,7 +78,7 @@ function getMiscData(editedCity, data) {
 * designData parses the events into an object with each value being attached to its corresponding
 * field and returns them in an array
 * */
-function designData(data) {
+function designData(data, miscData) {
   console.log(data)
   return data.map(function (theEvent) {
     var event = {};
@@ -90,7 +90,7 @@ function designData(data) {
       date: event.Date,
       time: event.Time,
       runTime: event.Run_Time,
-      tzAbbrev: event.Timezone_Abbrev
+      tzAbbrev: miscData.Timezone_Abbrev
     }
 
     var dateTime        = convertDateTime(dateData);
@@ -105,6 +105,8 @@ function designData(data) {
 * end datetime in the RFC 3339 extension of the ISO 8601 standard format
 * */
 function convertDateTime(dateData) {
+  console.log(dateData.tzAbbrev)
+
   var dateValue    = new Date(dateData.date);
   var dateValueObj = {
     month: dateValue.getMonth(),
@@ -121,12 +123,24 @@ function convertDateTime(dateData) {
   // need to add the 0 for the seconds
   var formattedDateTime = new Date(dateValueObj.year, dateValueObj.month, dateValueObj.day, timeValueObj.hour, timeValueObj.minutes, 0);
   var startDateTimeMs   = formattedDateTime.getTime();
-  var startDateTime     = Utilities.formatDate(formattedDateTime, dateData.tzAbbrev, "yyyy-MM-dd'T'HH:mm:ss'Z'")
+  // var startDateTime     = Utilities.formatDate(formattedDateTime, dateData.tzAbbrev, "yyyy-MM-dd'T'HH:mm:ss'Z'")
+  var startDateTime     = Utilities.formatDate(formattedDateTime, dateData.tzAbbrev, "EEE, dd MMM yyyy kk:mm:ss z")
 
-  var endDateTimeMs        = startDateTimeMs + (dateData.runTime * 60000);
+  console.log(startDateTime)
+
+  var endDateTimeMs;
+
+  if (dateData.runTime !== "N/A" && dateData.runTime) {
+    endDateTimeMs        = startDateTimeMs + (dateData.runTime * 60000);
+  } else {
+    endDateTimeMs        = startDateTimeMs + (60000);
+  }
+
   // not totally sure why you have to add the (+) operator but you do
   var formattedEndDateTime = new Date(+endDateTimeMs);
-  var endDateTime          = Utilities.formatDate(formattedEndDateTime, dateData.tzAbbrev, "yyyy-MM-dd'T'HH:mm:ss'Z'");
+  var endDateTime          = Utilities.formatDate(formattedEndDateTime, dateData.tzAbbrev, "EEE, dd MMM yyyy kk:mm:ss z");
+
+  console.log(endDateTime)
 
   return {
     start: startDateTime,
