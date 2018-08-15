@@ -1,18 +1,33 @@
-var apiUrl = "http://35.163.42.76:8080/submit/los_angeles";
+var apiUrl = "http://35.163.42.76:8080/submit/";
 
+var sheet;
 var headers;
-var activeSheet;
+var sheetToSend;
+
+var miscSheet, miscDataUpdated, cityToUpdate;
 
 /*
 * main parses the edited sheet to the data as JSON to the ampas
 * calendar server
 * */
 function main(e) {
-  headers      = getHeaders(e, 1)[0];
-  var events   = getValues(e);
-  var sheet    = e.source.getActiveSheet().getName();
-  var miscData = getMiscData(sheet, SpreadsheetApp.getActive().getSheetByName("Misc"))
-  var payload  = {
+  sheet     = e.source.getActiveSheet().getName();
+  headers   = getHeaders(e, 1)[0]; // sets var activeSheet
+  miscSheet = SpreadsheetApp.getActive().getSheetByName("Misc");
+
+  if (sheet !== "Misc") {
+    miscDataUpdated = false;
+    var events      = getEvents(e);
+    var miscData    = getMiscData(sheet, miscSheet)
+
+  } else {
+    miscDataUpdated = true;
+    cityToUpdate    = getUpdatedMiscData(e)
+    var events      = getEvents(e);
+    var miscData    = getMiscData(cityToUpdate, miscSheet)
+  }
+
+  var payload = {
     screenings: designData(events, miscData),
     misc: miscData
   };
@@ -20,12 +35,26 @@ function main(e) {
   sendEvents(payload);
 }
 
+function getUpdatedMiscData(e) {
+  var editedRow = e.source.getActiveRange().getRow();
+  var city      = activeSheet.getRange("A" + editedRow).getValue();
+
+  return city;
+}
+
 /*
 * getHeaders parses the first row of the sheet and returns them as values
 * */
 function getHeaders(e, r) {
-  activeSheet = e.source.getActiveSheet();
-  var vs      = activeSheet.getRange("A" + r + ":O" + r).getValues();
+  var vs;
+
+  if (!miscDataUpdated) {
+    sheetToSend = e.source.getActiveSheet();
+    vs          = sheetToSend.getRange("A" + r + ":O" + r).getValues();
+  } else {
+    sheetToSend = SpreadsheetApp.getActive().getSheetByName(cityToUpdate);
+    vs          = sheetToSend.getRange("A" + r + ":O" + r).getValues()
+  }
 
   return vs;
 }
@@ -33,9 +62,8 @@ function getHeaders(e, r) {
 /*
 * getValues parses each row, which is returned in an array, and pushes it into a daddy array
 * */
-function getValues(e) {
-  activeSheet     = e.source.getActiveSheet();
-  var numOfEvents = activeSheet.getLastRow();
+function getEvents() {
+  var numOfEvents = sheetToSend.getLastRow();
   var vs          = [];
 
   console.log(numOfEvents)
@@ -131,9 +159,9 @@ function convertDateTime(dateData) {
   var endDateTimeMs;
 
   if (dateData.runTime !== "N/A" && dateData.runTime) {
-    endDateTimeMs        = startDateTimeMs + (dateData.runTime * 60000);
+    endDateTimeMs = startDateTimeMs + (dateData.runTime * 60000);
   } else {
-    endDateTimeMs        = startDateTimeMs + (60000);
+    endDateTimeMs = startDateTimeMs + (60000);
   }
 
   // not totally sure why you have to add the (+) operator but you do
@@ -153,6 +181,9 @@ function convertDateTime(dateData) {
 * as well as all of the events in the sheet that triggered the on edit or on change event
 * */
 function sendEvents(payload) {
+  var city = sheet.toLowerCase().split(' ').join('_');
+  var url  = apiUrl + city;
+
   var options = {
     "method": "post",
     "headers": {
@@ -162,5 +193,5 @@ function sendEvents(payload) {
     "payload": JSON.stringify(payload)
   }
   console.log(JSON.stringify(payload))
-  return UrlFetchApp.fetch(apiUrl, options);
+  return UrlFetchApp.fetch(url, options);
 }
