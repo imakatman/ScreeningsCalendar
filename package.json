@@ -1,0 +1,28 @@
+{
+  "name": "spreadsheetcalendar",
+  "version": "1.0.0",
+  "description": "",
+  "main": "data.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "webpack": "webpack --config webpack.config.js",
+    "watch": "onchange './*.js' -i -- npm run-script webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/imakatman/ScreeningsCalendar.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/imakatman/ScreeningsCalendar/issues"
+  },
+  "homepage": "https://github.com/imakatman/ScreeningsCalendar#readme",
+  "devDependencies": {
+    "babel-loader": "^7.1.5",
+    "onchange": "^4.0.0",
+    "path": "^0.12.7",
+    "webpack": "^4.16.0",
+    "webpack-command": "^0.4.1"
+  }
+}

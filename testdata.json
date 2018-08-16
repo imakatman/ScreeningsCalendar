@@ -1,0 +1,22 @@
+{
+  "screenings": [
+    {
+      "Date": "2018-07-10T07:00:00.000Z",
+      "Time": "1899-12-31T03:00:00.000Z",
+      "Film_Title": "SORRY TO BOTHER YOU",
+      "Series": "",
+      "Notes": "",
+      "Synopsis": "In an alternate present-day version of Oakland, telemarketer Cassius Green discovers a magical key to professional success, propelling him into a macabre universe.",
+      "Credits": "Starring Lakeith Stanfield, Tessa Thompson and Armie Hammer. Produced by Nina Yang Bongiovi, Kelly Williams, Jonathan Duffy, Charles D. King, George Rush and Forest Whitaker. Written by Boots Riley. Directed by Boots Riley.",
+      "Studio": "Annapurna Pictures",
+      "Rating": "R",
+      "Run_Time": 105,
+      "Venue_Name": "MoMA’s Titus Theater 2",
+      "Venue_Address": "Enter at 11 West 53rd St. between 5th and 6th Avenues",
+      "Guests": "",
+      "Rsvp": "",
+      "Youtube": "https://www.youtube.com/watch?v=enH3xA4mYcY",
+      "StartDateTime": "Tue, 10 Jul 2018 22:00:00 EDT",
+      "EndDateTime": "Tue, 10 Jul 2018 23:45:00 EDT"
+    }
+}
