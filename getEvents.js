@@ -154,7 +154,7 @@ function convertDateTime(dateData) {
   // need to add the 0 for the seconds
   var formattedDateTime = new Date(dateValueObj.year, dateValueObj.month, dateValueObj.day, timeValueObj.hour, timeValueObj.minutes, 0);
   var startDateTimeMs   = formattedDateTime.getTime();
-  // var startDateTime     = Utilities.formatDate(formattedDateTime, dateData.tzAbbrev, "yyyy-MM-dd'T'HH:mm:ss'Z'")
+  // timezones are here http://joda-time.sourceforge.net/timezones.html
   var startDateTime     = Utilities.formatDate(formattedDateTime, dateData.tzAbbrev, "EEE, dd MMM yyyy kk:mm:ss z")
 
   console.log(startDateTime)
@@ -184,13 +184,14 @@ function convertDateTime(dateData) {
 * as well as all of the events in the sheet that triggered the on edit or on change event
 * */
 function sendEvents(payload) {
-  var city = sheet.toLowerCase().split(' ').join('_');
+  var city = sheetToSend.getName().toLowerCase().split(' ').join('_');
   var url  = apiUrl + city;
 
   var options = {
     "method": "post",
+    // Headers have to be capitalized
     "headers": {
-      "token": "oN$lYb-ek5-rOw"
+      "Token": "oN$lYb-ek5-rOw"
     },
     "contentType": "application/json",
     "payload": JSON.stringify(payload)
