@@ -14,26 +14,28 @@ function main(e) {
   sheet     = e.source.getActiveSheet().getName();
   miscSheet = SpreadsheetApp.getActive().getSheetByName("Misc");
 
-  if (sheet !== "Misc") {
-    miscDataUpdated = false;
-    headers   = getHeaders(e, 1)[0]; // sets var sheetToSend
-    var events      = getEvents(e);
-    var miscData    = getMiscData(sheet, miscSheet)
+  if(sheet !== "Work in progress"){
+    if (sheet !== "Misc") {
+      miscDataUpdated = false;
+      headers   = getHeaders(e, 1)[0]; // sets var sheetToSend
+      var events      = getEvents(e);
+      var miscData    = getMiscData(sheet, miscSheet)
 
-  } else {
-    miscDataUpdated = true;
-    cityToUpdate    = getUpdatedMiscData(e);
-    headers   = getHeaders(e, 1)[0]; // sets var sheetToSend
-    var events      = getEvents(e);
-    var miscData    = getMiscData(cityToUpdate, miscSheet)
+    } else {
+      miscDataUpdated = true;
+      cityToUpdate    = getUpdatedMiscData(e);
+      headers   = getHeaders(e, 1)[0]; // sets var sheetToSend
+      var events      = getEvents(e);
+      var miscData    = getMiscData(cityToUpdate, miscSheet)
+    }
+
+    var payload = {
+      screenings: designData(events),
+      misc: miscData
+    };
+
+    return sendEvents(payload);
   }
-
-  var payload = {
-    screenings: designData(events),
-    misc: miscData
-  };
-
-  sendEvents(payload);
 }
 
 function getUpdatedMiscData(e) {
@@ -74,6 +76,15 @@ function getEvents() {
   return vs;
 }
 
+function stripHtml(html){
+  // Create a new div element
+  var temporalDivElement = document.createElement("div");
+  // Set the HTML content with the provided
+  temporalDivElement.innerHTML = html;
+  // Retrieve the text property of the element (cross-browser support)
+  return temporalDivElement.textContent || temporalDivElement.innerText || "";
+}
+
 function getMiscData(editedCity, data) {
   var lastRow = data.getLastRow()
   var fields  = data.getRange("B1:I1").getValues()[0];
@@ -88,6 +99,10 @@ function getMiscData(editedCity, data) {
       var obj = {};
       fields.map(function (f, x) {
         var value = values[i][x];
+        if(f === "Description"){
+          console.log(stripHtml(value))
+          value = stripHtml(value);
+        }
         if (value === "") {
           obj[f] = ""
         } else {
