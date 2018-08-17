@@ -77,12 +77,7 @@ function getEvents() {
 }
 
 function stripHtml(html){
-  // Create a new div element
-  var temporalDivElement = document.createElement("div");
-  // Set the HTML content with the provided
-  temporalDivElement.innerHTML = html;
-  // Retrieve the text property of the element (cross-browser support)
-  return temporalDivElement.textContent || temporalDivElement.innerText || "";
+  return html.replace(/<(?:.|\n)*?>/gm, '');
 }
 
 function getMiscData(editedCity, data) {
@@ -99,8 +94,7 @@ function getMiscData(editedCity, data) {
       var obj = {};
       fields.map(function (f, x) {
         var value = values[i][x];
-        if(f === "Description"){
-          console.log(stripHtml(value))
+        if(f === "Description" || f === "Screening_Regulations"){
           value = stripHtml(value);
         }
         if (value === "") {
@@ -124,7 +118,13 @@ function designData(data) {
   return data.map(function (theEvent) {
     var event = {};
     theEvent[0].map(function (info, i) {
-      event[headers[i]] = info
+      var h = headers[i];
+      var value = info;
+      if(h !== "Synopsis"){
+        event[h] = value
+      } else {
+        event[h] = stripHtml(value)
+      }
     });
 
     var dateData = {
