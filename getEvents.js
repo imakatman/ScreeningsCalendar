@@ -14,28 +14,28 @@ function main(e) {
   sheet     = e.source.getActiveSheet().getName();
   miscSheet = SpreadsheetApp.getActive().getSheetByName("Misc");
 
-  if (sheet !== "Misc") {
-    console.log("sheet is NOT Misc")
-    miscDataUpdated = false;
-    headers   = getHeaders(e, 1)[0]; // sets var sheetToSend
-    var events      = getEvents(e);
-    var miscData    = getMiscData(sheet, miscSheet)
+  if(sheet !== "Work in progress"){
+    if (sheet !== "Misc") {
+      miscDataUpdated = false;
+      headers   = getHeaders(e, 1)[0]; // sets var sheetToSend
+      var events      = getEvents(e);
+      var miscData    = getMiscData(sheet, miscSheet)
 
-  } else {
-    console.log("sheet is Misc")
-    miscDataUpdated = true;
-    cityToUpdate    = getUpdatedMiscData(e);
-    headers   = getHeaders(e, 1)[0]; // sets var sheetToSend
-    var events      = getEvents(e);
-    var miscData    = getMiscData(cityToUpdate, miscSheet)
+    } else {
+      miscDataUpdated = true;
+      cityToUpdate    = getUpdatedMiscData(e);
+      headers   = getHeaders(e, 1)[0]; // sets var sheetToSend
+      var events      = getEvents(e);
+      var miscData    = getMiscData(cityToUpdate, miscSheet)
+    }
+
+    var payload = {
+      screenings: designData(events),
+      misc: miscData
+    };
+
+    return sendEvents(payload);
   }
-
-  var payload = {
-    screenings: designData(events, miscData),
-    misc: miscData
-  };
-
-  sendEvents(payload);
 }
 
 function getUpdatedMiscData(e) {
@@ -69,13 +69,15 @@ function getEvents() {
   var numOfEvents = sheetToSend.getLastRow();
   var vs          = [];
 
-  console.log(numOfEvents)
-
   for (var i = 2; i <= numOfEvents; i++) {
     vs.push(sheetToSend.getRange("A" + i + ":O" + i).getValues());
   }
 
   return vs;
+}
+
+function stripHtml(html){
+  return html.replace(/<(?:.|\n)*?>/gm, '');
 }
 
 function getMiscData(editedCity, data) {
@@ -92,6 +94,9 @@ function getMiscData(editedCity, data) {
       var obj = {};
       fields.map(function (f, x) {
         var value = values[i][x];
+        if(f === "Description" || f === "Screening_Regulations"){
+          value = stripHtml(value);
+        }
         if (value === "") {
           obj[f] = ""
         } else {
@@ -109,19 +114,23 @@ function getMiscData(editedCity, data) {
 * designData parses the events into an object with each value being attached to its corresponding
 * field and returns them in an array
 * */
-function designData(data, miscData) {
-  console.log(data)
+function designData(data) {
   return data.map(function (theEvent) {
     var event = {};
     theEvent[0].map(function (info, i) {
-      event[headers[i]] = info
+      var h = headers[i];
+      var value = info;
+      if(h !== "Synopsis"){
+        event[h] = value
+      } else {
+        event[h] = stripHtml(value)
+      }
     });
 
     var dateData = {
       date: event.Date,
       time: event.Time,
-      runTime: event.Run_Time,
-      tzAbbrev: miscData.Timezone_Abbrev
+      runTime: event.Run_Time
     }
 
     var dateTime        = convertDateTime(dateData);
@@ -136,8 +145,6 @@ function designData(data, miscData) {
 * end datetime in the RFC 3339 extension of the ISO 8601 standard format
 * */
 function convertDateTime(dateData) {
-  console.log(dateData.tzAbbrev)
-
   var dateValue    = new Date(dateData.date);
   var dateValueObj = {
     month: dateValue.getMonth(),
@@ -151,27 +158,23 @@ function convertDateTime(dateData) {
     minutes: timeValue.getMinutes()
   }
 
-  // need to add the 0 for the seconds
-  var formattedDateTime = new Date(dateValueObj.year, dateValueObj.month, dateValueObj.day, timeValueObj.hour, timeValueObj.minutes, 0);
+  // * need to add the 0 for the seconds
+  // * important to wrap properties in Date.UTC() function, otherwise the date will be created according
+  // to the system settings for timezone offset
+  var formattedDateTime = new Date(Date.UTC(dateValueObj.year, dateValueObj.month, dateValueObj.day, timeValueObj.hour, timeValueObj.minutes, 0));
   var startDateTimeMs   = formattedDateTime.getTime();
-  // timezones are here http://joda-time.sourceforge.net/timezones.html
-  var startDateTime     = Utilities.formatDate(formattedDateTime, dateData.tzAbbrev, "EEE, dd MMM yyyy kk:mm:ss z")
-
-  console.log(startDateTime)
-
+  var startDateTime     = Utilities.formatDate(formattedDateTime, "GMT", "EEE, dd MMM yyyy kk:mm:ss z");
   var endDateTimeMs;
 
   if (dateData.runTime !== "N/A" && dateData.runTime) {
     endDateTimeMs = startDateTimeMs + (dateData.runTime * 60000);
   } else {
-    endDateTimeMs = startDateTimeMs + (60000);
+    endDateTimeMs = startDateTimeMs + (60 * 60000);
   }
 
   // not totally sure why you have to add the (+) operator but you do
   var formattedEndDateTime = new Date(+endDateTimeMs);
-  var endDateTime          = Utilities.formatDate(formattedEndDateTime, dateData.tzAbbrev, "EEE, dd MMM yyyy kk:mm:ss z");
-
-  console.log(endDateTime)
+  var endDateTime          = Utilities.formatDate(formattedEndDateTime, "GMT", "EEE, dd MMM yyyy kk:mm:ss z");
 
   return {
     start: startDateTime,
