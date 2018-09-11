@@ -4,38 +4,71 @@ var sheet;
 var headers;
 var sheetToSend;
 
-var miscSheet, miscDataUpdated, cityToUpdate;
+var miscSheet, miscDataUpdated, sheetToUpdate;
 
 /*
 * main parses the edited sheet to the data as JSON to the ampas
 * calendar server
+*
+* if the edited sheet is the Work in progress one, don't execute the function
 * */
 function main(e) {
-  sheet     = e.source.getActiveSheet().getName();
-  miscSheet = SpreadsheetApp.getActive().getSheetByName("Misc");
+  sheet = e.source.getActiveSheet().getName();
 
-  if(sheet !== "Work in progress"){
-    if (sheet !== "Misc") {
-      miscDataUpdated = false;
-      headers   = getHeaders(e, 1)[0]; // sets var sheetToSend
-      var events      = getEvents(e);
-      var miscData    = getMiscData(sheet, miscSheet)
+  // If the Misc sheet exists, make sure to parse it.
+  if (SpreadsheetApp.getActive().getSheetByName("Misc")) {
+    miscSheet = SpreadsheetApp.getActive().getSheetByName("Misc");
 
-    } else {
-      miscDataUpdated = true;
-      cityToUpdate    = getUpdatedMiscData(e);
-      headers   = getHeaders(e, 1)[0]; // sets var sheetToSend
-      var events      = getEvents(e);
-      var miscData    = getMiscData(cityToUpdate, miscSheet)
+    if (sheet !== "Work in progress") {
+      var msg = getEditedValueMessage(e);
+
+      console.log(sheet, "sheet has been updated.");
+      console.log(msg);
+
+      if (sheet !== "Misc") {
+        miscDataUpdated = false;
+        headers         = getHeaders(e, 1)[0]; // sets var sheetToSend
+        var events      = getEvents(e);
+        var miscData    = getMiscData(sheet, miscSheet)
+
+      } else {
+        console.log("Misc data has been updated");
+        miscDataUpdated = true;
+        sheetToUpdate   = getUpdatedMiscData(e);
+        headers         = getHeaders(e, 1)[0]; // sets var sheetToSend
+        var events      = getEvents(e);
+        var miscData    = getMiscData(sheetToUpdate, miscSheet)
+      }
+
+      var payload = {
+        screenings: designData(events),
+        misc: miscData
+      };
+
+      return sendEvents(payload);
     }
+  } else {
+    if (sheet !== "Work in progress") {
+      miscDataUpdated = false;
+      headers         = getHeaders(e, 1)[0]; // sets var sheetToSend
+      var events      = getEvents(e);
 
-    var payload = {
-      screenings: designData(events),
-      misc: miscData
-    };
+      var payload = {
+        screenings: designData(events),
+      };
 
-    return sendEvents(payload);
+      return sendEvents(payload);
+    }
   }
+}
+
+function getEditedValueMessage(e) {
+  var activeCell  = e.source.getActiveCell(),
+      rowIndex    = activeCell.getRowIndex(),
+      columnIndex = activeCell.getColumnIndex(),
+      value      = activeCell.getValue();
+
+  return "Row " + rowIndex + " Column " + columnIndex + " was updated. Value is " + value;
 }
 
 function getUpdatedMiscData(e) {
@@ -47,6 +80,10 @@ function getUpdatedMiscData(e) {
 
 /*
 * getHeaders parses the first row of the sheet and returns them as values
+*
+* Line 83 and 86
+* There is an assumption that the last column in a sheet provided is going to be O.
+* This will have to be modified depending on the type of screening
 * */
 function getHeaders(e, r) {
   var vs;
@@ -55,9 +92,11 @@ function getHeaders(e, r) {
     sheetToSend = e.source.getActiveSheet();
     vs          = sheetToSend.getRange("A" + r + ":O" + r).getValues();
   } else {
-    sheetToSend = SpreadsheetApp.getActive().getSheetByName(cityToUpdate);
+    sheetToSend = SpreadsheetApp.getActive().getSheetByName(sheetToUpdate);
     vs          = sheetToSend.getRange("A" + r + ":O" + r).getValues()
   }
+
+  console.log("Headers are:", vs);
 
   return vs;
 }
@@ -76,7 +115,7 @@ function getEvents() {
   return vs;
 }
 
-function stripHtml(html){
+function stripHtml(html) {
   return html.replace(/<(?:.|\n)*?>/gm, '');
 }
 
@@ -94,7 +133,7 @@ function getMiscData(editedCity, data) {
       var obj = {};
       fields.map(function (f, x) {
         var value = values[i][x];
-        if(f === "Description" || f === "Screening_Regulations"){
+        if (f === "Description" || f === "Screening_Regulations") {
           value = stripHtml(value);
         }
         if (value === "") {
@@ -103,7 +142,8 @@ function getMiscData(editedCity, data) {
           obj[f] = value
         }
       })
-      vs = obj
+      vs = obj;
+      console.log("Misc data is:", obj);
     }
   })
 
@@ -115,12 +155,12 @@ function getMiscData(editedCity, data) {
 * field and returns them in an array
 * */
 function designData(data) {
-  return data.map(function (theEvent) {
+  return data.map(function (theEvent, index) {
     var event = {};
     theEvent[0].map(function (info, i) {
-      var h = headers[i];
+      var h     = headers[i];
       var value = info;
-      if(h !== "Synopsis"){
+      if (h !== "Synopsis") {
         event[h] = value
       } else {
         event[h] = stripHtml(value)
@@ -136,6 +176,8 @@ function designData(data) {
     var dateTime        = convertDateTime(dateData);
     event.StartDateTime = dateTime.start;
     event.EndDateTime   = dateTime.end;
+
+    console.log(index, "event is", event);
     return event;
   });
 }
@@ -199,6 +241,6 @@ function sendEvents(payload) {
     "contentType": "application/json",
     "payload": JSON.stringify(payload)
   }
-  console.log(JSON.stringify(payload))
+  // console.log(JSON.stringify(payload))
   return UrlFetchApp.fetch(url, options);
 }
